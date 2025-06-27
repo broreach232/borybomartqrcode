@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>QR + Geo Check Demo</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 20px; }
+    #reader { width: 100%; max-width: 500px; margin: auto; }
+    #msg { margin-top: 20px; font-size: 1.1em; }
+  </style>
+</head>
+<body>
+  <h2>Scan QR (within 100 m)</h2>
+  <div id="reader"></div>
+  <div id="msg">Waiting for scan…</div>
+
+  <script>
+    const targetLat = 10.8409855, targetLng = 104.4614037, maxDist = 100;
+    function getDistance(a,b,c,d){
+      const toRad=x=>x*Math.PI/180;
+      const R=6371e3, φ1=toRad(a),φ2=toRad(c),Δφ=toRad(c-a),Δλ=toRad(d-b);
+      const A=Math.sin(Δφ/2)**2+Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+      const C=2*Math.atan2(Math.sqrt(A),Math.sqrt(1-A));
+      return R*C;
+    }
+
+    function scanSuccess(qrText) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const d = getDistance(pos.coords.latitude, pos.coords.longitude, targetLat, targetLng);
+        const msgEl = document.getElementById('msg');
+        if (d <= maxDist) {
+          msgEl.textContent = `✔️ ស្ថិតក្នុង ${Math.round(d)} m → អ្នកនឹងបើក Form…`;
+          window.location.href = qrText;
+        } else {
+          msgEl.textContent = `❌ មិននៅក្នុង 100 m (distance = ${Math.round(d)} m)`;
+        }
+      }, err => {
+        document.getElementById('msg').textContent = '⚠️ មិនអាចប្រើ GPS៖ '+err.message;
+      }, { enableHighAccuracy: true });
+    }
+
+    new Html5QrcodeScanner('reader', { fps:10, qrbox:250 }).render(scanSuccess);
+  </script>
+</body>
+</html>
