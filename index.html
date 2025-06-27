@@ -16,7 +16,7 @@
   <div id="msg">Waiting for scan…</div>
 
   <script>
-    const targetLat = 10.9489694, targetLng = 104.6544283, maxDist = 100;
+    const targetLat = 10.9489694, targetLng = 104.6544283, maxDist = 1500;
     function getDistance(a,b,c,d){
       const toRad=x=>x*Math.PI/180;
       const R=6371e3, φ1=toRad(a),φ2=toRad(c),Δφ=toRad(c-a),Δλ=toRad(d-b);
